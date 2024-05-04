@@ -11,7 +11,10 @@ module.exports = (sequelize, Sequelize) => {
       description: {
         type: Sequelize.STRING
       },
-      date: {
+      startingDate: {
+        type: Sequelize.DATE
+      },
+      endingDate: {
         type: Sequelize.DATE
       },
       type: {
@@ -20,7 +23,7 @@ module.exports = (sequelize, Sequelize) => {
       location: {
         type: Sequelize.STRING
       },
-      url: {
+      slug: {
         type: Sequelize.STRING
       },
       maxAttendees: {

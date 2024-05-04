@@ -25,6 +25,35 @@ verifyToken = (req, res, next) => {
             });
 };
 
+isUser = (req, res, next) => {
+  User.findByPk(req.userId).then(user => {
+    user.getRoles().then(roles => {
+      for (let i = 0; i < roles.length; i++) {
+        if (roles[i].name === "user") {
+          next();
+          return;
+        }
+      }
+
+      res.status(403).send({
+        message: "Requires User Role!"
+      });
+    });
+  });
+};
+
+isCurrentUser = (req, res, next) => {
+  User.findByPk(req.userId).then(user => {
+    if (req.params.username === user.username) {
+      next();
+    } else {
+      res.status(403).send({
+        message: "Access Denied! You are not allowed to access other users' pages."
+      });
+    }
+  });
+};
+
 isAdmin = (req, res, next) => {
   User.findByPk(req.userId).then(user => {
     user.getRoles().then(roles => {
@@ -82,10 +111,55 @@ isManagerOrAdmin = (req, res, next) => {
   });
 };
 
+isEventAdmin = (req, res, next) => {
+  User.findByPk(req.userId).then(user => {
+    Event.findByPk(req.params.eventId).then(event => {
+      if (user.id === event.adminId) {
+        next();
+      } else {
+        res.status(403).send({
+          message: "Access Denied! You are not allowed to manage this event."
+        });
+      }
+    });
+  });
+};
+
+isEventAdminOrManager = (req, res, next) => {
+  User.findByPk(req.userId).then(user => {
+    Event.findByPk(req.params.eventId).then(event => {
+      if (user.id === event.adminId) {
+        next();
+        return;
+      } else {
+        Manager.findOne({
+          where: {
+            userId: user.id,
+            eventId: event.id
+          }
+        }).then(manager => {
+          if (manager) {
+            next();
+            return;
+          } else {
+            res.status(403).send({
+              message: "Access Denied! You are not allowed to manage this event."
+            });
+          }
+        });
+      }
+    });
+  });
+};
+
 const authJwt = {
   verifyToken: verifyToken,
+  isUser: isUser,
+  isCurrentUser: isCurrentUser,
   isAdmin: isAdmin,
   isManager: isManager,
-  isManagerOrAdmin: isManagerOrAdmin
+  isManagerOrAdmin: isManagerOrAdmin,
+  isEventAdmin: isEventAdmin,
+  isEventAdminOrManager: isEventAdminOrManager
 };
 module.exports = authJwt;

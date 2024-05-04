@@ -28,10 +28,13 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.user = require("../models/user.model.js")(sequelize, Sequelize);
-db.role = require("../models/role.model.js")(sequelize, Sequelize);
 db.event = require("../models/event.model.js")(sequelize, Sequelize);
+db.manager = require("../models/manager.model.js")(sequelize, Sequelize);
+db.message = require("../models/message.model.js")(sequelize, Sequelize);
+db.role = require("../models/role.model.js")(sequelize, Sequelize);
+db.task = require("../models/task.model.js")(sequelize, Sequelize);
 db.ticket = require("../models/ticket.model.js")(sequelize, Sequelize);
+db.user = require("../models/user.model.js")(sequelize, Sequelize);
 
 db.role.belongsToMany(db.user, {
   through: "user_roles"
@@ -49,6 +52,42 @@ db.ticket.belongsTo(db.event, {
 
 db.user.hasMany(db.ticket, { as: "tickets" });
 db.ticket.belongsTo(db.user, {
+  foreignKey: "userId",
+  as: "user",
+});
+
+db.user.hasMany(db.event, { as: "events" });
+db.event.belongsTo(db.user, {
+  foreignKey: "adminId",
+  as: "admin",
+});
+
+db.event.hasMany(db.manager, { as: "managers" });
+db.manager.belongsTo(db.event, {
+  foreignKey: "eventId",
+  as: "event",
+});
+
+db.user.hasMany(db.manager, { as: "managers" });
+db.manager.belongsTo(db.user, {
+  foreignKey: "userId",
+  as: "user",
+});
+
+db.event.hasMany(db.task, { as: "tasks" });
+db.task.belongsTo(db.event, {
+  foreignKey: "eventId",
+  as: "event",
+});
+
+db.task.hasMany(db.message, { as: "messages" });
+db.message.belongsTo(db.task, {
+  foreignKey: "taskId",
+  as: "task",
+});
+
+db.user.hasMany(db.message, { as: "messages" });
+db.message.belongsTo(db.user, {
   foreignKey: "userId",
   as: "user",
 });

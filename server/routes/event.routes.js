@@ -11,13 +11,27 @@ module.exports = function(app) {
     });
 
     // Event Management Routes
-    app.get(
-        "/events/",
-        controller.eventsPage
-    );
+
+    exports.listOfEvents = (req, res) => {
+        Event.findAll()
+        .then(data => {
+            res.send(data);
+        })
+        .catch(err => {
+            res.status(500).send({
+            message: err.message || "Some error occurred while retrieving events."
+            });
+        });
+    };
 
     app.get(
-        "/event/:eventSlug/",
-        controller.eventPage
+        "/event/:eventId/",
+        controller.eventDetails
     );
+
+    app.post(
+        "/create-event/",
+        [authJwt.verifyToken, authJwt.isAdmin],
+        controller.createEvent
+      );
 };

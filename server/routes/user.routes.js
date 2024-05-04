@@ -12,19 +12,19 @@ module.exports = function(app) {
 
   app.get(
     "/user/:username/",
-    [authJwt.verifyToken],
+    [authJwt.verifyToken, authJwt.isUser, authJwt.isCurrentUser],
     controller.userBoard
   );
   
   app.get(
     "/manager/:username/",
-    [authJwt.verifyToken, authJwt.isManager],
+    [authJwt.verifyToken, authJwt.isManager, authJwt.isCurrentUser],
     controller.managerBoard
   );
   
   app.get(
     "/admin/:username/",
-    [authJwt.verifyToken, authJwt.isAdmin],
+    [authJwt.verifyToken, authJwt.isAdmin, authJwt.isCurrentUser],
     controller.adminBoard
   );
 };
