@@ -11,46 +11,75 @@ exports.eventPage = (req, res) =>{
 
 // Create an event
 exports.createEvent = (req, res) => {
-  if (!req.body.name || !req.body.description || !req.body.date || !req.body.type || !req.body.location || !req.body.slug || !req.body.maxAttendees) {
+  const { name, description, startingDate, endingDate, type, location, slug, maxAttendees } = req.body;
+  const userId = req.userId; 
+
+  // Check all required fields
+  if (!name || !description || !startingDate || !endingDate || !type || !location || !slug || !maxAttendees) {
     res.status(400).send({
-      message: "Content can not be empty!"
+      message: "All fields are required!"
     });
     return;
   }
 
   // Create an event
   Event.create({
-    name: req.body.name,
-    description: req.body.description,
-    date: req.body.date,
-    type: req.body.type,
-    location: req.body.location,
-    slug: req.body.slug,
-    maxAttendees: req.body.maxAttendees
+    name,
+    description,
+    startingDate,
+    endingDate,
+    type,
+    location,
+    slug,
+    maxAttendees,
+    userId // Set the userId to the user's id
   })
   .then(data => {
     res.send(data);
   })
   .catch(err => {
     res.status(500).send({
-      message:
-        err.message || "Some error occurred while creating the Event."
+      message: err.message || "Some error occurred while creating the Event."
     });
   });
 };
 
 
+
+// fetch all events
+exports.listOfEvents = (req, res) => {
+  Event.findAll()
+  .then(data => {
+      res.send(data);
+  })
+  .catch(err => {
+      res.status(500).send({
+      message: err.message || "Some error occurred while retrieving events."
+      });
+  });
+};
+
 // fetch an event's details
 exports.eventDetails = (req, res) => {
-  const id = req.params.eventId;
+  const slug = req.params.slug;
 
-  Event.findByPk(id)
+  Event.findOne({
+    where: {
+      slug: slug
+    }
+  })
     .then(data => {
-      res.send(data);
+      if (data) {
+        res.send(data);
+      } else {
+        res.status(404).send({
+          message: "No event found with slug=" + slug
+        });
+      }
     })
     .catch(err => {
       res.status(500).send({
-        message: "Error retrieving Event with id=" + id
+        message: "Error retrieving Event with slug=" + slug
       });
     });
 };

@@ -17,6 +17,15 @@ module.exports = function (app) {
     controller.assignManager
   );
 
+  // Delete a manager from the Event
+  // Remove a manager from an event
+  app.delete(
+    "/event/:eventId/remove-manager/:managerId",
+    [authJwt.verifyToken, authJwt.isAdmin, authJwt.isEventAdmin],
+    controller.removeManager
+  );
+
+
   // Get all managers for an event
   app.get(
     "/event/:eventId/managers",

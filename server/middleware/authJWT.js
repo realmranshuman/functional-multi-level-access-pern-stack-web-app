@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config.js");
 const db = require("../models");
 const User = db.user;
+const Event = db.event;
 
 verifyToken = (req, res, next) => {
   let token = req.headers["x-access-token"];
@@ -114,7 +115,7 @@ isManagerOrAdmin = (req, res, next) => {
 isEventAdmin = (req, res, next) => {
   User.findByPk(req.userId).then(user => {
     Event.findByPk(req.params.eventId).then(event => {
-      if (user.id === event.adminId) {
+      if (user.id === event.userId) {
         next();
       } else {
         res.status(403).send({

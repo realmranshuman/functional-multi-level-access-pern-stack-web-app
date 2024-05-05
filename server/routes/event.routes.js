@@ -12,26 +12,36 @@ module.exports = function(app) {
 
     // Event Management Routes
 
-    exports.listOfEvents = (req, res) => {
-        Event.findAll()
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-            message: err.message || "Some error occurred while retrieving events."
-            });
-        });
-    };
-
-    app.get(
-        "/event/:eventId/",
-        controller.eventDetails
-    );
-
+    // Create an event
     app.post(
         "/create-event/",
         [authJwt.verifyToken, authJwt.isAdmin],
         controller.createEvent
-      );
+    );
+    
+    // List all events
+    app.get(
+        "/events/",
+        controller.listOfEvents
+    );
+
+    // get details of an event
+    app.get(
+        "/event/:slug/",
+        controller.eventDetails
+    );
+
+    // Update an event
+    app.post(
+        "/update-event/:eventId",
+        [authJwt.verifyToken, authJwt.isAdmin, authJwt.isEventAdmin],
+        controller.updateEvent
+    )
+
+    // Delete an event
+    app.post(
+        "/delete-event/:eventId",
+        [authJwt.verifyToken, authJwt.isAdmin, authJwt.isEventAdmin],
+        controller.deleteEvent
+    )
 };

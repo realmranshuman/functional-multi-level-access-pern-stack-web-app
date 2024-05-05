@@ -10,18 +10,28 @@ module.exports = function(app) {
     next();
   });
 
+  // Change the user role
+  app.post(
+    "/user/:userId/assign-role/:roleName",
+    [authJwt.verifyToken, authJwt.isAdmin],
+    controller.assignRole
+  );
+  
+  // Get your user dashboard
   app.get(
     "/user/:username/",
     [authJwt.verifyToken, authJwt.isUser, authJwt.isCurrentUser],
     controller.userBoard
   );
   
+  // Get your manager dashboard
   app.get(
     "/manager/:username/",
     [authJwt.verifyToken, authJwt.isManager, authJwt.isCurrentUser],
     controller.managerBoard
   );
   
+  // Get your admin dashboard
   app.get(
     "/admin/:username/",
     [authJwt.verifyToken, authJwt.isAdmin, authJwt.isCurrentUser],
